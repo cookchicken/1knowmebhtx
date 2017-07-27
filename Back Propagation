@@ -1,0 +1,62 @@
+import pandas as pd
+import math
+#学习速率
+yita=0.2
+#映射函数
+def sigmoid(x):
+    return 1/(1+math.exp(-x))
+#中间层神经元输入
+Net_in=pd.DataFrame(0,index=['input1','input2','theata'],columns=['A'])
+Net_in.ix[2,0]=-1
+#输出层神经元输入
+Out_in=pd.DataFrame(0,index=['input1','input2','input3','input4','theata'],columns=['A'])
+Out_in.ix[4,0]=-1
+#中间层神经元权值
+W_mid=pd.DataFrame(0.5,index=['input1','input2','theata'],columns=['mid1','mid2','mid3','mid4'])
+#中间层神经元权值更新量
+W_min_delta=pd.DataFrame(0,index=['input1','input2','theata'],columns=['mid1','mid2','mid3','mid4'])
+#输出层神经元权值
+W_out=pd.DataFrame(0.5,index=['input1','input2','input3','input4','theata'],columns=['A'])
+#输出层神经元权值更新量
+W_out_delta=pd.DataFrame(0,index=['input1','input2','input3','input4','theata'],columns=['A'])
+#=====数据读入===
+tr_data=pd.read_table('H:/Learning/数据挖掘/data_tr.txt')
+te_data=pd.read_table('H:/Learning/数据挖掘/data_te.txt')
+#====网络训练====
+df = pd.DataFrame(0,index=range(0,2500),columns=['样本序号','real','predict','error'])
+#网络输入
+for j in  range(0,len(tr_data.ix[:,0])):
+    Net_in.ix[0:2,:]=list(tr_data.ix[j,0:2])
+    #目标输出
+    real=tr_data.ix[j,2]
+#中间层的输出
+    for i in range(0,4):
+        Out_in.ix[i,0]=sigmoid(sum(Net_in.ix[:,0]*W_mid.ix[:,1]))
+#输出层的输出/网络输出
+    res=sigmoid(sum(Out_in.ix[:,0]*W_out.ix[:,0]))
+#输出层权值变化量
+    W_out_delta.ix[:,0]=yita*res*(1-res)*(real-res)*Out_in.ix[:,0]
+    W_out_delta.ix[4,0]=-(yita*res*(1-res)*(real-res))
+#中间层权值变化量
+    for i in range(0,4):
+        W_min_delta.ix[:,i]=yita*Out_in.ix[i,0]*(1-Out_in.ix[i,0])*W_out.ix[i,0]*res*(1-res)*(real-res)*Net_in.ix[:,0]
+        W_min_delta.ix[2,i]=-(yita*Out_in.ix[i,0]*(1-Out_in.ix[i,0])*W_out.ix[i,0]*res*(1-res)*(real-res))
+#中间层权值更新
+        W_mid = W_mid + W_min_delta
+        error=math.fabs(real-res)
+        df_data = [j, real, res, str(error * 100) + '%']
+        df.ix[n * 500 + j] = df_data
+print(df)
+#=====模型测试=======
+for i in range(0,len(te_data.ix[:,0])):
+#网络输入
+    Net_in.ix[0:2,0]=list(te_data.ix[j,0:2])
+#目标输出
+    real = data_te.ix[j, 2]
+#中间层的输出
+    for i in range(0, 4):
+        Out_in.ix[i, 0] = sigmoid(sum(Net_in.ix[:, 0] * W_mid.ix[:, i]))
+#输出层的输出/网络输出
+        res = sigmoid(sum(Out_in.ix[:, 0] * W_out.ix[:, 0]))
+        error = math.fabs(real - res)
+        print('第', j, '个测试样本误差：', error * 100, '%', '真实值:', real, '预测值:', res)

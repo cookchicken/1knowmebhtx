@@ -1,0 +1,25 @@
+import pandas as pd
+from random import sample
+from sklearn.tree import DecisionTreeClassifier
+#数据读入
+openfile='F:/新建文件夹/python范例程序/chapter8/chapter8/demo/data/data.xls'
+labels={'肝气郁结证型系数':'A','热毒蕴结证型系数':'B','冲任失调证型系数':'C','气血两虚证型系数':'D','脾胃虚弱证型系数':'E','肝肾阴虚证系数':'F'}
+data=pd.read_excel(openfile)
+data=pd.DataFrame(data)
+#数据处理，数据计划分
+keys=labels.keys()
+data=data.ix[:,[0,1,2,3,4,5,6,7]]
+tra_data=sample(range(0.930),744)
+tex_data=[i for i in range(0,930) if i not in tra_data]
+tra_data=data.ix[tra_data,:]
+tex_data=data.ix[tex_data,:]
+#训练集数构建模型 决策树
+model=DecisionTreeClassifier(random_state=1).fit(tra_data.ix[:,0:6],tex_data.ix[:,0:6])
+
+#利用测试集数据对模型评价
+res=model.predict(tex_data.ix[:,0:6]
+Res=pd.DataFrame(0,index=range(0,len(res)),columns=['实际值','预测值'])
+Res.ix[:,0]=pd.Series(list(te_da.ix[:,6]),index=(range(0,len(res))) )
+Res.ix[:,1]=res
+print(Res)
+print(sum(res==tex_data.ix[:6])/len(res))

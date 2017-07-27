@@ -1,2 +1,0 @@
-# 1knowmebhtx
-Back Propagation

@@ -1,0 +1,16 @@
+import pandas as pd
+from random import sample
+from sklearn.neighbors import  KNeighborsClassifier as KNN
+datafile='F:/新建文件夹/python范例程序/chapter8/chapter8/demo/data/data.xls'
+data=pd.read_excel(datafile)
+
+data=data.ix[:,[0,1,2,3,4,5,7]]
+tra_data=sample(range(0,930),744)
+tex_data=[i for i in range(0,930) if i not in tra_data]
+tra_data=data.ix[tra_data,:]
+tex_data=data.ix[tex_data,:]
+
+model=KNN(n_neighbors=3).fit(tra_data.ix[:,0:6],tra_data.ix[:,6])
+res=model.predict(tex_data.ix[:,0:6])
+print(res,'\n',tex_data.ix[:,6])
+print(sum(res==tex_data.ix[:,6])/len(res)'')

@@ -1,0 +1,49 @@
+#=====设置工作路径=====
+import pandas as pd
+import jieba
+#加载数据
+
+f=open('F:/新建文件夹/python范例程序/新建文件夹/meidi_jd.txt','r',encoding='gb18030')
+data=pd.read_table(f,header=None)
+f.close()
+#去除nan
+data=data.dropna()
+#去重 使用drop_duplicates
+data=data.drop_duplicates()
+#短语删除,找到长度小于7的短语
+index=[len(index)>=7 for index in data.ix[:,0]]
+data=data.ix[index,:]
+#结巴分词
+comment_cut=[list(jieba.cut(index)) for index in data.ix[:,0]]
+#导入停用词词库
+stoplist=pd.read_table('F:/新建文件夹/python范例程序/新建文件夹/stoplist.txt',sep='\s+',encoding='gb18030',header=None,engine='python')
+stoplist=list(stoplist.ix[:,0])+['']
+#删除停用词
+comment_word=[]
+for index in comment_cut:
+    word=[i for i in index if i not in stoplist] #找出comment_cut中不含stoplist的部分
+    comment_word.append(word)
+#=======情感倾向值打分====
+#导入正负情感词库
+positive=pd.read_table('F:/新建文件夹/python范例程序/新建文件夹/positive.txt',encoding='gb18030',header=None,engine='python')
+negative=pd.read_table('F:/新建文件夹/python范例程序/新建文件夹/negative.txt',encoding='gb18030',header=None,engine='python')
+positive=list(positive.ix[:,0])
+negative=list(negative.ix[:,0])
+#为每条评论打分
+bad=[]
+good=[]
+good.append([index for index in positive.ix[:,0] if index in comment_word])
+goodscore=len(good)
+bad.append([index for index in negative.ix[:,0] if index in comment_word])
+badscore=len(bad)
+Score=goodscore-badscore
+#将正负评论数据及分数构造成数据框
+comment_dic={'commment':comment_word,'grade_pos':positive,'grade_neg':negative}
+res=pd.DataFrame(comment_dic)
+#正负评分汇总
+res.ix[:'gread']=res.ix[:,1]+res.ix[:,2]
+#分别获得正面评论和负面评论
+index1=res.ix[:,3]>0
+index2=res.ix[:,3]<0
+comment_pos=res.ix[index1,0]
+comment_neg=res.ix[index2,0]
